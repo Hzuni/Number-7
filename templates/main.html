@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<div id="map"></div>
+
+<!-- <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}"> -->
+
+<   link rel ="stylesheet" type = "text/css"
+    href = "{{ url_for('static', filename = 'style.css') }}" />
+
+<script type=text/javascript> $SCRIPT_ROOT = {{ request.script_root|tojson|safe }}; </script>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+<script src = "{{ url_for( 'static', filename = 'script.js') }}" ></script>
+
+
+<!-- 
+<script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkeptWJ7y9v0diLp4fbQaX9efCX2OloJI&callback=initMap"
+type="text/javascript">
+</script> 
+-->
+
+</html>
+
