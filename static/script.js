@@ -1,5 +1,4 @@
-
-var roads_API_Key = 'AIzaSyDPdsPXbCWrvsQ3NSoCK_IPBicj8Ti-Tws';
+var roads_API_Key = 'AIzaSyC7-dOoZ935wU7cldbCpu97aVCr8RLDjGo';
 var map;
 var busses = [];            // Array of bus types to be defined later.
 var bus_mrkrs_len = 0;
@@ -24,6 +23,8 @@ function Bus(id, marker, path){
     this.id = id;
     this.marker = marker;
     this.path = path;
+    this.snapped_path = new google.maps.Polyline(); // store a null snapped line till we have a second point
+
 }
 
 
@@ -39,11 +40,35 @@ function find_by_id(unq_id, element){
 }
 
 
-function runSnapToRoad(path){
+function runSnapToRoad(path, snapped_path){
    var pathValues = [];
-   for ( var i = 0; i < path.getLenght(); i++){
-       pathValues.push(path.getAt(i).toUrlValue());
+   for ( var i = 0; i < path.length; i++){
+       pathValues.push(path[i].toUrlValue());
+       console.log(path[i].toUrlValue());
    }
+
+   $.get('https://roads.googleapis.com/v1/snapToRoads', {
+       interpolate: true,
+       key: roads_API_Key,
+       path: pathValues.join('|')
+   }, function(data){
+       var snappedCoordinates = [];
+       for (var i = 0; i < data.snappedPoints.length; i++) {
+           var latlng = new google.maps.LatLng(
+               data.snappedPoints[i].location.latitude,
+               data.snappedPoints[i].location.longitude);
+           snappedCoordinates.push(latlng);
+           }
+       var snappedPolyLine = new google.maps.Polyline({
+            path: snappedCoordinates,
+            map: map,
+            strokeColor: clr_stck.pop(),
+            strokeWeigh: 2
+        });
+        snapped_path.setMap(null);
+        snapped_path = null;
+        snapped_path = snappedPolyLine;
+      });
 }
 
 
@@ -56,25 +81,21 @@ function getter(){
                bus_mrkrs_len = data.duval.length;
                console.log("Number of Busses at Load Time", data.duval.length);
 
-               for( var i = 0; i < bus_mrkrs_len; i++){
+               for( var i = 0; i < bus_mrkrs_len; i++) {
 
-                   var busLatLng =  { lat: data.duval[i].lat, lng: data.duval[i].lng };
+                   var busLatLng =  new google.maps.LatLng(data.duval[i].lat, data.duval[i].lng); //{ lat: data.duval[i].lat, lng: data.duval[i].lng };
                    var pathCords = [];
                    pathCords.push(busLatLng);
 
                    var bus_marker = new google.maps.Marker({
-                       position: busLatLng,
+                       position: {lat: data.duval[i].lat, lng: data.duval[i].lng},
                        map: map,
-                       title: data.duval[i].id
+                       title: data.duval[i].id,
+                       
                    });
-
-                   var path = new google.maps.Polyline({
-                       path: pathCords,
-                       map: map,
-                       strokeColor: clr_stck.pop(),
-                       stokeOpacity: 1.0,
-                       strokeWeight: 2
-                   });
+                   
+                   path = [];
+                   path.push(busLatLng);
 
                    busses.push(new Bus(data.duval[i].id, bus_marker, path));
                }
@@ -88,18 +109,17 @@ function getter(){
                     var bus_fnd = busses.findIndex(find_by_id.bind(null, data.duval[i].id));
                     if (bus_fnd != -1) {
                         
-                        var newLatLng = new google.maps.LatLng(data.duval[i].lat,
-                        data.duval[i].lng)
+                        var newLatLng = new google.maps.LatLng(data.duval[i].lat, data.duval[i].lng);
 
-                        console.log(newLatLng.toUrlValue());
+
                         busses[bus_fnd].marker.setMap(null);
                         busses[bus_fnd].marker.setPosition(newLatLng);
                         busses[bus_fnd].marker.setMap(map);
 
-                        busses[bus_fnd].path.setMap(null);
-                        busses[bus_fnd].path.getPath().push(newLatLng); 
-                        // Adds a new point to the end of the path.
-                        busses[bus_fnd].path.setMap(map);
+                        busses[bus_fnd].path.push(newLatLng); 
+
+                        runSnapToRoad(busses[bus_fnd].path, busses[bus_fnd].snapped_path);
+                        
                         fnd_cnt += 1;
 
                    } else {
@@ -112,19 +132,21 @@ function getter(){
                            map: map,
                            title: data.duval[i].id
                        });
-
+                       /*
                        var path = new google.maps.Polyline({
                            path: pathCords,
                            strokeColor: '#FF0000',
                            stokeOpacity: 1.0,
                            strokeWeight: 2
-                       });
+                       }); 
+                       */
+                       
                        busses.push(new Bus(data.duval[i].id, bus_marker, path));
                        /*Still haven't accounted for busses which stop running instead
                        am currently just keeping a marker on the map for them. */
                    }
                 }
-                console.log("Number of Busses found this Round", fnd_cnt);
+                console.log("Number of Busses found thi round: ", fnd_cnt);
             }
 
        },
