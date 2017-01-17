@@ -5,10 +5,17 @@ import urllib
 import time
 import threading
 import datetime 
+import pytz
+from pytz import timezone
 from threading import Lock
 import sys
+import os
+from flask import send_from_directory
 
 no_sevs = []
+fmt = '%H:%M:%S'
+austin_tm = timezone('US/Central')
+
 app = Flask(__name__)
 
 def retrv_no_sevs():
@@ -26,12 +33,13 @@ def retrv_no_sevs():
             busNO = str(e['vehicle']['trip']['route_id']).strip()
             if len(busNO) > 0:
                 if int(busNO) == 7:
+                    utc_dt = datetime.datetime.utcfromtimestamp(e['vehicle']['timestamp'])
                     no_sevs.append({
                         'id'  : e['vehicle']['vehicle']['id'],
                         'lat' : e['vehicle']['position']['latitude'], 
                         'lng' : e['vehicle']['position']['longitude'],
                         'stop_id' : e['vehicle']['stop_id'],
-                        'timestamp' : datetime.datetime.fromtimestamp(int( e['vehicle']['timestamp'])).strftime('%Y-%m-%d %H:%M:%S')
+                        'timeStamp' : pytz.utc.localize(utc_dt).astimezone(austin_tm).strftime(fmt)
                         })
 
     finally:
@@ -43,7 +51,7 @@ def retrv_no_sevs():
 def refreshBusData():
     while True:
        retrv_no_sevs()
-       time.sleep(30)
+       time.sleep(15)
 
 
 @app.route('/get', methods=['GET'])
@@ -60,6 +68,13 @@ def get_tasks():
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
+
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                                   'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/')
 def index():
