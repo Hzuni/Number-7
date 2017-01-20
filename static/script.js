@@ -20,8 +20,10 @@ function initMap() {
 }
 
 
-function Bus(id, marker, path, ts_info){
+function Bus(id, lat, lang, marker, path, ts_info){
     this.id = id;
+    this.lat = lat;
+    this.lang = lang;
     this.marker = marker;
     this.path = path;
     this.snapped_path = new google.maps.Polyline();
@@ -123,7 +125,7 @@ function getter(){
                    path = [];
                    path.push(busLatLng);
 
-                   busses.push(new Bus(data.duval[i].id, bus_marker, path, ts_info));
+                   busses.push(new Bus(data.duval[i].id,data.duval[i].lat, data.duval[i].lng, bus_marker, path, ts_info));
                }
 
            }
@@ -135,20 +137,20 @@ function getter(){
                     var bus_fnd = busses.findIndex(find_by_id.bind(null, data.duval[i].id));
                     if (bus_fnd != -1) {
                         
-                        var newLatLng = new google.maps.LatLng(data.duval[i].lat, data.duval[i].lng);
+                        if( (data.duval[i].lat != busses[bus_fnd].lat) || (data.duval[i].lng !=  busses[bus_fnd].lng )){
+                            /* Only change the update bus data if the bus has moved */
+                            var newLatLng = new google.maps.LatLng(data.duval[i].lat, data.duval[i].lng);
+                            
+                            busses[bus_fnd].marker.setMap(null);
+                            busses[bus_fnd].marker.setPosition(newLatLng);
+                            busses[bus_fnd].marker.setMap(map);
 
-
-                        busses[bus_fnd].marker.setMap(null);
-                        busses[bus_fnd].marker.setPosition(newLatLng);
-                        busses[bus_fnd].marker.setMap(map);
-
-                        busses[bus_fnd].marker.setTitle('Bus Id: ' + data.duval[i].id + ' Time: ' + data.duval[i].timeStamp);
-
-                        busses[bus_fnd].path.push(newLatLng); 
-                        
-
-                        // runSnapToRoad(busses[bus_fnd]); 
-                        fnd_cnt += 1;
+                            busses[bus_fnd].marker.setTitle('Bus Id: ' + data.duval[i].id + ' Time: ' + data.duval[i].timeStamp);
+                            
+                            busses[bus_fnd].path.push(newLatLng); 
+                            runSnapToRoad(busses[bus_fnd]); 
+                            fnd_cnt += 1;
+                        }
 
                    } else {
                        var busLatLng =  { lat: data.duval[i].lat, lng: data.duval[i].lng };

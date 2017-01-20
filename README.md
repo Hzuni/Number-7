@@ -7,3 +7,6 @@ Currently updates with just markers indicating where th number 7 bus is(the bus 
     * Google Maps Javascript API
     * Flask Microfamework
     * Twitter Bootstrap
+ 
+## Preview 
+![alt tag] (./pic1.png)
