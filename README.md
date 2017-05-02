@@ -9,4 +9,4 @@ Currently updates with just markers indicating where th number 7 bus is(the bus 
     * Twitter Bootstrap
  
 ## Preview 
-![alt tag] (./pic1.png)
+![alt text] (./pic1.png)
