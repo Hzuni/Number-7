@@ -8,5 +8,4 @@ Currently updates with just markers indicating where th number 7 bus is(the bus 
     * Flask Microfamework
     * Twitter Bootstrap
  
-## Preview 
-![alt tag] (.picures/pic1.png)
+![alt tag] (./pictures/screenshot.png)
