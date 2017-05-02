@@ -9,4 +9,4 @@ Currently updates with just markers indicating where th number 7 bus is(the bus 
     * Twitter Bootstrap
  
 ## Preview 
-- ![alt text] (pic1.png?raw=true "Optional Title")
+- ![alt text] (https://github.com/Hzuni/Number-7/blob/master/pic1.png)
