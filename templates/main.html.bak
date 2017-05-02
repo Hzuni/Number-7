@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+<link rel ="stylesheet" type = "text/css" href = "{{ url_for('static', filename = 'css/style.css') }}" />
+<link rel ="stylesheet" type = "text/css" href = "{{ url_for('static', filename = 'css/lib/bootstrap.css') }}" />
+
+<script type=text/javascript> $SCRIPT_ROOT = {{ request.script_root|tojson|safe }}; </script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+<script src = "{{ url_for( 'static', filename = 'js/lib/bootstrap.js') }}" ></script>
+<script src = "{{ url_for( 'static', filename = 'js/script.js') }}" ></script>
+
+
+<body>
+    <h1>Live View of the Austin Number 7 bus</h1>
+    
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Dropdown button
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" href="#">Action</a>
+            <a class="dropdown-item" href="#">Another action</a>
+            <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+    </div>
+    
+    <div id= "map"> </div>
+        
+
+
+</body>
+
+
+<script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkeptWJ7y9v0diLp4fbQaX9efCX2OloJI&callback=initMap"
+type="text/javascript">
+</script> 
+
+</html>
+
